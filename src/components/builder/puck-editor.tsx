@@ -1,6 +1,7 @@
 "use client";
 
-import { type FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import type { CSSProperties, FormEvent } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Puck, type Data } from "@puckeditor/core";
 import "@puckeditor/core/puck.css";
 import { useLocale, useTranslations } from "next-intl";
@@ -10,9 +11,18 @@ import {
   normalizePuckData,
   stripBlockComponentsForBlock,
 } from "@/components/builder/puck-runtime";
+import {
+  DEFAULT_DESIGN_TOKENS,
+  designTokensToCssVars,
+  normalizeDesignTokens,
+  PREVIEW_MAX_WIDTH,
+} from "@/lib/design-tokens";
 import type {
+  StudioBreakpoint,
   StudioComponentBlock,
   StudioComponentDefinition,
+  StudioDesignTokenValues,
+  StudioDesignTokens,
 } from "@/lib/studio-types";
 
 type SaveState = "idle" | "saving" | "success" | "error";
@@ -24,9 +34,12 @@ export function PuckEditor() {
   const [isLoading, setIsLoading] = useState(true);
   const [projectName, setProjectName] = useState(`Landing ${locale.toUpperCase()}`);
   const [currentData, setCurrentData] = useState<Data | null>(null);
+  const [puckResetKey, setPuckResetKey] = useState(0);
   const [publishedUrl, setPublishedUrl] = useState<string | null>(null);
   const [components, setComponents] = useState<StudioComponentDefinition[]>([]);
   const [blocks, setBlocks] = useState<StudioComponentBlock[]>([]);
+  const [previewBreakpoint, setPreviewBreakpoint] = useState<StudioBreakpoint>("desktop");
+  const [designTokens, setDesignTokens] = useState<StudioDesignTokens>(DEFAULT_DESIGN_TOKENS);
 
   const [componentName, setComponentName] = useState("");
   const [componentDescription, setComponentDescription] = useState("");
@@ -44,6 +57,13 @@ export function PuckEditor() {
 
   const projectId = useMemo(() => `starter-${locale}`, [locale]);
   const config = useMemo(() => buildPuckConfig(components, blocks), [components, blocks]);
+  const previewStyle = useMemo(() => {
+    const vars = designTokensToCssVars(designTokens, previewBreakpoint);
+    return {
+      ...vars,
+      maxWidth: PREVIEW_MAX_WIDTH[previewBreakpoint],
+    } as CSSProperties;
+  }, [designTokens, previewBreakpoint]);
 
   const reloadComponents = useCallback(async () => {
     const res = await fetch("/api/components", { cache: "no-store" });
@@ -78,14 +98,16 @@ export function PuckEditor() {
 
         if (projectRes.ok) {
           const projectPayload = (await projectRes.json()) as {
-            project: { name: string; content: unknown };
+            project: { name: string; content: unknown; designTokens?: unknown };
           };
           if (!mounted) return;
           setProjectName(projectPayload.project.name);
           setCurrentData(normalizePuckData(projectPayload.project.content));
+          setDesignTokens(normalizeDesignTokens(projectPayload.project.designTokens));
         } else {
           if (!mounted) return;
           setCurrentData(initialDataWithFallback(null));
+          setDesignTokens(DEFAULT_DESIGN_TOKENS);
         }
       } finally {
         if (mounted) {
@@ -114,6 +136,7 @@ export function PuckEditor() {
           name: projectName,
           locale,
           content: data,
+          designTokens,
         }),
       });
 
@@ -139,6 +162,39 @@ export function PuckEditor() {
       setSaveState("error");
     }
   };
+
+  const mutateCanvasContent = useCallback(
+    (updater: (items: Data["content"]) => Data["content"]) => {
+      setCurrentData((previous) => {
+        if (!previous) return previous;
+        const nextItems = updater([...previous.content]);
+        return { ...previous, content: nextItems };
+      });
+      setPuckResetKey((value) => value + 1);
+    },
+    [],
+  );
+
+  const moveCanvasItem = useCallback(
+    (index: number, direction: -1 | 1) => {
+      mutateCanvasContent((items) => {
+        const targetIndex = index + direction;
+        if (targetIndex < 0 || targetIndex >= items.length) return items;
+        const copied = [...items];
+        const [item] = copied.splice(index, 1);
+        copied.splice(targetIndex, 0, item);
+        return copied;
+      });
+    },
+    [mutateCanvasContent],
+  );
+
+  const removeCanvasItem = useCallback(
+    (index: number) => {
+      mutateCanvasContent((items) => items.filter((_, itemIndex) => itemIndex !== index));
+    },
+    [mutateCanvasContent],
+  );
 
   const onCreateComponent = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -223,6 +279,18 @@ export function PuckEditor() {
       setIsSavingBlock(false);
     }
   };
+
+  const updateToken = (field: keyof StudioDesignTokenValues, value: string) => {
+    setDesignTokens((previous) => ({
+      ...previous,
+      [previewBreakpoint]: {
+        ...previous[previewBreakpoint],
+        [field]: value,
+      },
+    }));
+  };
+
+  const canvasItems = currentData?.content ?? [];
 
   return (
     <div className="space-y-4">
@@ -323,6 +391,120 @@ export function PuckEditor() {
         </section>
       </div>
 
+      <div className="grid gap-4 lg:grid-cols-3">
+        <section className="rounded-xl border border-black/10 bg-white p-4">
+          <h2 className="text-sm font-semibold text-zinc-900">{t("navigatorTitle")}</h2>
+          <p className="mt-1 text-xs text-zinc-600">{t("navigatorDesc")}</p>
+          <ol className="mt-3 space-y-2">
+            {canvasItems.map((item, index) => {
+              const typed = item as { type?: string };
+              return (
+                <li
+                  key={`${typed.type ?? "item"}-${index}`}
+                  className="flex items-center justify-between rounded-lg border border-black/10 px-2 py-1"
+                >
+                  <span className="text-xs text-zinc-700">
+                    {index + 1}. {typed.type ?? "Unknown"}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      className="rounded border border-black/10 px-2 py-0.5 text-[11px]"
+                      type="button"
+                      onClick={() => moveCanvasItem(index, -1)}
+                      disabled={index === 0}
+                    >
+                      ↑
+                    </button>
+                    <button
+                      className="rounded border border-black/10 px-2 py-0.5 text-[11px]"
+                      type="button"
+                      onClick={() => moveCanvasItem(index, 1)}
+                      disabled={index === canvasItems.length - 1}
+                    >
+                      ↓
+                    </button>
+                    <button
+                      className="rounded border border-red-200 px-2 py-0.5 text-[11px] text-red-600"
+                      type="button"
+                      onClick={() => removeCanvasItem(index)}
+                    >
+                      {t("remove")}
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+            {canvasItems.length === 0 ? (
+              <li className="text-xs text-zinc-500">{t("emptyNavigator")}</li>
+            ) : null}
+          </ol>
+        </section>
+
+        <section className="rounded-xl border border-black/10 bg-white p-4">
+          <h2 className="text-sm font-semibold text-zinc-900">{t("responsiveTitle")}</h2>
+          <p className="mt-1 text-xs text-zinc-600">{t("responsiveDesc")}</p>
+          <div className="mt-3 flex items-center gap-2">
+            {(["desktop", "tablet", "mobile"] as StudioBreakpoint[]).map((value) => (
+              <button
+                key={value}
+                className={`rounded-full px-3 py-1 text-xs font-medium ${
+                  previewBreakpoint === value
+                    ? "bg-black text-white"
+                    : "border border-black/10 text-zinc-700"
+                }`}
+                onClick={() => setPreviewBreakpoint(value)}
+                type="button"
+              >
+                {t(`breakpoint.${value}`)}
+              </button>
+            ))}
+          </div>
+        </section>
+
+        <section className="rounded-xl border border-black/10 bg-white p-4">
+          <h2 className="text-sm font-semibold text-zinc-900">{t("tokenTitle")}</h2>
+          <p className="mt-1 text-xs text-zinc-600">{t("tokenDesc")}</p>
+          <div className="mt-3 grid grid-cols-2 gap-2">
+            <input
+              className="rounded-lg border border-black/10 px-2 py-1 text-xs"
+              value={designTokens[previewBreakpoint].bgColor}
+              onChange={(event) => updateToken("bgColor", event.target.value)}
+              placeholder="bgColor"
+            />
+            <input
+              className="rounded-lg border border-black/10 px-2 py-1 text-xs"
+              value={designTokens[previewBreakpoint].textColor}
+              onChange={(event) => updateToken("textColor", event.target.value)}
+              placeholder="textColor"
+            />
+            <input
+              className="rounded-lg border border-black/10 px-2 py-1 text-xs"
+              value={designTokens[previewBreakpoint].brandColor}
+              onChange={(event) => updateToken("brandColor", event.target.value)}
+              placeholder="brandColor"
+            />
+            <input
+              className="rounded-lg border border-black/10 px-2 py-1 text-xs"
+              value={designTokens[previewBreakpoint].radius}
+              onChange={(event) => updateToken("radius", event.target.value)}
+              placeholder="radius"
+            />
+            <input
+              className="rounded-lg border border-black/10 px-2 py-1 text-xs"
+              value={designTokens[previewBreakpoint].space}
+              onChange={(event) => updateToken("space", event.target.value)}
+              placeholder="space"
+            />
+            <input
+              className="rounded-lg border border-black/10 px-2 py-1 text-xs"
+              value={designTokens[previewBreakpoint].fontSize}
+              onChange={(event) => updateToken("fontSize", event.target.value)}
+              placeholder="fontSize"
+            />
+          </div>
+        </section>
+      </div>
+
       <div className="rounded-xl border border-black/10 bg-white p-4">
         <label className="text-xs font-medium text-zinc-700">{t("projectName")}</label>
         <input
@@ -341,12 +523,20 @@ export function PuckEditor() {
       </div>
 
       {!isLoading && currentData ? (
-        <Puck
-          config={config}
-          data={initialDataWithFallback(currentData)}
-          onChange={setCurrentData}
-          onPublish={onPublish}
-        />
+        <div className="mx-auto transition-all duration-200" style={previewStyle}>
+          <Puck
+            key={`${projectId}-${puckResetKey}`}
+            config={config}
+            data={initialDataWithFallback(currentData)}
+            onChange={setCurrentData}
+            onPublish={onPublish}
+            viewports={[
+              { width: "100%", label: "Desktop", icon: "Monitor" },
+              { width: 860, label: "Tablet", icon: "Tablet" },
+              { width: 420, label: "Mobile", icon: "Smartphone" },
+            ]}
+          />
+        </div>
       ) : (
         <div className="rounded-xl border border-black/10 bg-white px-4 py-8 text-sm text-zinc-500">
           {t("loading")}

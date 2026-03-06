@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { getCloudflareEnv } from "@/lib/cloudflare";
+import { normalizeDesignTokens } from "@/lib/design-tokens";
 import type {
   StudioComponentBlock,
   StudioComponentDefinition,
@@ -41,6 +42,7 @@ export const projectInputSchema = z.object({
   name: z.string().min(1),
   locale: z.string().min(2),
   content: z.unknown(),
+  designTokens: z.unknown().optional(),
 });
 
 export const componentFieldSchema = z.object({
@@ -71,6 +73,11 @@ export type ComponentInput = z.infer<typeof componentInputSchema>;
 export type ComponentBlockInput = z.infer<typeof componentBlockInputSchema>;
 
 function deserializeProjectRow(row: Record<string, unknown>): StudioProject {
+  const rawDesignTokens =
+    typeof row.design_tokens_json === "string"
+      ? JSON.parse(row.design_tokens_json)
+      : row.design_tokens_json;
+
   return {
     id: String(row.id),
     name: String(row.name),
@@ -80,6 +87,7 @@ function deserializeProjectRow(row: Record<string, unknown>): StudioProject {
       typeof row.content_json === "string"
         ? JSON.parse(row.content_json)
         : row.content_json ?? {},
+    designTokens: normalizeDesignTokens(rawDesignTokens),
     updatedAt: String(row.updated_at),
   };
 }
@@ -117,14 +125,43 @@ function deserializeBlockRow(row: Record<string, unknown>): StudioComponentBlock
   };
 }
 
+const PROJECT_SELECT_WITH_TOKENS =
+  "SELECT id, name, locale, status, content_json, design_tokens_json, updated_at FROM projects";
+const PROJECT_SELECT_LEGACY =
+  "SELECT id, name, locale, status, content_json, updated_at FROM projects";
+
+async function queryProjects(env: CloudflareEnv) {
+  try {
+    const { results } = await env.STUDIO_DB!.prepare(
+      `${PROJECT_SELECT_WITH_TOKENS} ORDER BY updated_at DESC LIMIT 100`,
+    ).all<Record<string, unknown>>();
+    return results;
+  } catch {
+    const { results } = await env.STUDIO_DB!.prepare(
+      `${PROJECT_SELECT_LEGACY} ORDER BY updated_at DESC LIMIT 100`,
+    ).all<Record<string, unknown>>();
+    return results;
+  }
+}
+
+async function queryProjectById(env: CloudflareEnv, projectId: string) {
+  try {
+    return await env.STUDIO_DB!.prepare(`${PROJECT_SELECT_WITH_TOKENS} WHERE id = ?1 LIMIT 1`)
+      .bind(projectId)
+      .first<Record<string, unknown>>();
+  } catch {
+    return await env.STUDIO_DB!.prepare(`${PROJECT_SELECT_LEGACY} WHERE id = ?1 LIMIT 1`)
+      .bind(projectId)
+      .first<Record<string, unknown>>();
+  }
+}
+
 export async function listProjects(): Promise<StudioProject[]> {
   const env = await getCloudflareEnv();
 
   if (env?.STUDIO_DB) {
     try {
-      const { results } = await env.STUDIO_DB.prepare(
-        "SELECT id, name, locale, status, content_json, updated_at FROM projects ORDER BY updated_at DESC LIMIT 100",
-      ).all<Record<string, unknown>>();
+      const results = await queryProjects(env);
       return results.map(deserializeProjectRow);
     } catch {
       // fall through
@@ -141,11 +178,7 @@ export async function getProjectById(projectId: string): Promise<StudioProject |
 
   if (env?.STUDIO_DB) {
     try {
-      const row = await env.STUDIO_DB.prepare(
-        "SELECT id, name, locale, status, content_json, updated_at FROM projects WHERE id = ?1 LIMIT 1",
-      )
-        .bind(projectId)
-        .first<Record<string, unknown>>();
+      const row = await queryProjectById(env, projectId);
 
       if (row) {
         return deserializeProjectRow(row);
@@ -161,36 +194,62 @@ export async function getProjectById(projectId: string): Promise<StudioProject |
 export async function saveProject(input: ProjectInput): Promise<StudioProject> {
   const env = await getCloudflareEnv();
   const now = new Date().toISOString();
+  const designTokens = normalizeDesignTokens(input.designTokens);
   const project: StudioProject = {
     id: input.id,
     name: input.name,
     locale: input.locale,
     status: "draft",
     content: input.content,
+    designTokens,
     updatedAt: now,
   };
 
   if (env?.STUDIO_DB) {
     try {
-      await env.STUDIO_DB.prepare(
-        `INSERT INTO projects (id, name, locale, status, content_json, updated_at)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6)
-         ON CONFLICT(id) DO UPDATE SET
-           name = excluded.name,
-           locale = excluded.locale,
-           status = excluded.status,
-           content_json = excluded.content_json,
-           updated_at = excluded.updated_at`,
-      )
-        .bind(
-          project.id,
-          project.name,
-          project.locale,
-          project.status,
-          JSON.stringify(project.content),
-          project.updatedAt,
+      try {
+        await env.STUDIO_DB.prepare(
+          `INSERT INTO projects (id, name, locale, status, content_json, design_tokens_json, updated_at)
+           VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7)
+           ON CONFLICT(id) DO UPDATE SET
+             name = excluded.name,
+             locale = excluded.locale,
+             status = excluded.status,
+             content_json = excluded.content_json,
+             design_tokens_json = excluded.design_tokens_json,
+             updated_at = excluded.updated_at`,
         )
-        .run();
+          .bind(
+            project.id,
+            project.name,
+            project.locale,
+            project.status,
+            JSON.stringify(project.content),
+            JSON.stringify(project.designTokens),
+            project.updatedAt,
+          )
+          .run();
+      } catch {
+        await env.STUDIO_DB.prepare(
+          `INSERT INTO projects (id, name, locale, status, content_json, updated_at)
+           VALUES (?1, ?2, ?3, ?4, ?5, ?6)
+           ON CONFLICT(id) DO UPDATE SET
+             name = excluded.name,
+             locale = excluded.locale,
+             status = excluded.status,
+             content_json = excluded.content_json,
+             updated_at = excluded.updated_at`,
+        )
+          .bind(
+            project.id,
+            project.name,
+            project.locale,
+            project.status,
+            JSON.stringify(project.content),
+            project.updatedAt,
+          )
+          .run();
+      }
     } catch {
       memoryProjects.set(project.id, project);
     }
@@ -230,11 +289,7 @@ export async function publishProject(projectId: string): Promise<{
         .bind(projectId, now)
         .run();
 
-      const selected = await env.STUDIO_DB.prepare(
-        "SELECT id, name, locale, status, content_json, updated_at FROM projects WHERE id = ?1 LIMIT 1",
-      )
-        .bind(projectId)
-        .first<Record<string, unknown>>();
+      const selected = await queryProjectById(env, projectId);
 
       if (selected) {
         project = deserializeProjectRow(selected);

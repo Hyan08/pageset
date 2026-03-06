@@ -1,5 +1,13 @@
 import type { Config, Data } from "@puckeditor/core";
 
+const baseCardStyle = {
+  borderRadius: "var(--ff-radius)",
+  backgroundColor: "var(--ff-bg-color)",
+  color: "var(--ff-text-color)",
+  padding: "var(--ff-space)",
+  fontSize: "var(--ff-font-size)",
+} as const;
+
 export const basePuckConfig: Config = {
   components: {
     HeroBlock: {
@@ -11,12 +19,13 @@ export const basePuckConfig: Config = {
         buttonText: { type: "text" },
       },
       render: ({ eyebrow, title, description, buttonText }) => (
-        <section className="rounded-2xl border border-black/10 bg-white p-8">
-          <p className="text-xs font-medium text-zinc-500">{eyebrow}</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-zinc-900">{title}</h2>
-          <p className="mt-3 max-w-2xl text-zinc-600">{description}</p>
+        <section className="border border-black/10" style={baseCardStyle}>
+          <p className="text-xs font-medium opacity-70">{eyebrow}</p>
+          <h2 className="mt-3 text-3xl font-semibold tracking-tight">{title}</h2>
+          <p className="mt-3 max-w-2xl opacity-80">{description}</p>
           <button
-            className="mt-5 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
+            className="mt-5 rounded-full px-4 py-2 text-sm font-semibold text-white"
+            style={{ backgroundColor: "var(--ff-brand-color)" }}
             type="button"
           >
             {buttonText}
@@ -31,9 +40,9 @@ export const basePuckConfig: Config = {
         body: { type: "textarea" },
       },
       render: ({ title, body }) => (
-        <article className="rounded-2xl border border-black/10 bg-white p-5">
-          <h3 className="text-lg font-medium text-zinc-900">{title}</h3>
-          <p className="mt-2 text-sm text-zinc-600">{body}</p>
+        <article className="border border-black/10" style={baseCardStyle}>
+          <h3 className="text-lg font-medium">{title}</h3>
+          <p className="mt-2 text-sm opacity-80">{body}</p>
         </article>
       ),
     },
@@ -44,10 +53,18 @@ export const basePuckConfig: Config = {
         buttonText: { type: "text" },
       },
       render: ({ title, buttonText }) => (
-        <section className="rounded-2xl bg-zinc-950 p-8 text-white">
+        <section
+          className="border border-black/10 text-white"
+          style={{
+            ...baseCardStyle,
+            backgroundColor: "var(--ff-brand-color)",
+            color: "#fff",
+          }}
+        >
           <h3 className="text-2xl font-semibold">{title}</h3>
           <button
-            className="mt-4 rounded-full bg-white px-4 py-2 text-sm font-semibold text-zinc-900"
+            className="mt-4 rounded-full bg-white px-4 py-2 text-sm font-semibold"
+            style={{ color: "var(--ff-brand-color)" }}
             type="button"
           >
             {buttonText}

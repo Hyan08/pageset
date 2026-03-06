@@ -108,3 +108,30 @@
 - 内容：
   - [x] lint/build 校验
   - [x] git add/commit/push
+
+## Step 13 - Navigator + 断点预览 + 设计 Token
+
+- 状态：✅ 已完成
+- 完成时间：2026-03-06
+- 内容：
+  - [x] Builder 新增 Navigator 页面树（重排/删除）
+  - [x] Builder 新增 desktop/tablet/mobile 断点预览
+  - [x] Builder 新增设计 Token 面板（颜色/圆角/间距/字号）
+  - [x] 发布页面渲染应用设计 Token
+
+## Step 14 - 项目模型升级（Design Tokens 持久化）
+
+- 状态：✅ 已完成
+- 完成时间：2026-03-06
+- 内容：
+  - [x] `projects` 新增 `design_tokens_json` 持久化字段（migration 0003）
+  - [x] 项目读写 API 支持 designTokens
+  - [x] 新旧查询语句兼容（带列/不带列）
+
+## Step 15 - 本轮验证与提交流程
+
+- 状态：✅ 已完成
+- 完成时间：2026-03-06
+- 内容：
+  - [x] lint/build 校验
+  - [x] git add/commit/push

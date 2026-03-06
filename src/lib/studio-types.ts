@@ -1,4 +1,16 @@
 export type StudioProjectStatus = "draft" | "published";
+export type StudioBreakpoint = "desktop" | "tablet" | "mobile";
+
+export type StudioDesignTokenValues = {
+  bgColor: string;
+  textColor: string;
+  brandColor: string;
+  radius: string;
+  space: string;
+  fontSize: string;
+};
+
+export type StudioDesignTokens = Record<StudioBreakpoint, StudioDesignTokenValues>;
 
 export type StudioProject = {
   id: string;
@@ -6,6 +18,7 @@ export type StudioProject = {
   locale: string;
   status: StudioProjectStatus;
   content: unknown;
+  designTokens: StudioDesignTokens;
   updatedAt: string;
 };
 

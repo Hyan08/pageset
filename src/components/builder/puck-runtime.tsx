@@ -6,6 +6,13 @@ import type {
 } from "@/lib/studio-types";
 
 type PuckContentItem = Data["content"][number];
+const tokenCardStyle = {
+  borderRadius: "var(--ff-radius)",
+  backgroundColor: "var(--ff-bg-color)",
+  color: "var(--ff-text-color)",
+  padding: "var(--ff-space)",
+  fontSize: "var(--ff-font-size)",
+} as const;
 
 function normalizePuckContent(content: unknown): Data["content"] {
   if (!Array.isArray(content)) {
@@ -46,14 +53,17 @@ function renderByTemplate(
     const description = fields[1]?.value || "";
     const cta = fields[2]?.value || "Learn more";
     return (
-      <section className="rounded-2xl border border-black/10 bg-white p-8">
-        <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">
+      <section className="border border-black/10" style={tokenCardStyle}>
+        <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "#666" }}>
           Custom Hero
         </p>
-        <h2 className="mt-3 text-3xl font-semibold text-zinc-900">{title}</h2>
-        <p className="mt-3 text-zinc-600">{description}</p>
+        <h2 className="mt-3 text-3xl font-semibold">{title}</h2>
+        <p className="mt-3 opacity-80">{description}</p>
         <button
-          className="mt-5 rounded-full bg-black px-4 py-2 text-sm font-semibold text-white"
+          className="mt-5 rounded-full px-4 py-2 text-sm font-semibold text-white"
+          style={{
+            backgroundColor: "var(--ff-brand-color)",
+          }}
           type="button"
         >
           {cta}
@@ -66,10 +76,18 @@ function renderByTemplate(
     const title = fields[0]?.value || def.name;
     const buttonText = fields[1]?.value || "Action";
     return (
-      <section className="rounded-2xl bg-zinc-950 p-8 text-white">
+      <section
+        className="border border-black/10 text-white"
+        style={{
+          ...tokenCardStyle,
+          backgroundColor: "var(--ff-brand-color)",
+          color: "#fff",
+        }}
+      >
         <h3 className="text-2xl font-semibold">{title}</h3>
         <button
-          className="mt-4 rounded-full bg-white px-4 py-2 text-sm font-semibold text-zinc-900"
+          className="mt-4 rounded-full bg-white px-4 py-2 text-sm font-semibold"
+          style={{ color: "var(--ff-brand-color)" }}
           type="button"
         >
           {buttonText}
@@ -80,10 +98,10 @@ function renderByTemplate(
 
   if (template === "text") {
     return (
-      <article className="rounded-2xl border border-black/10 bg-white p-5">
+      <article className="border border-black/10" style={tokenCardStyle}>
         {fields.map((field) => (
-          <p key={field.label} className="mb-2 text-sm text-zinc-700 last:mb-0">
-            <span className="font-medium text-zinc-900">{field.label}: </span>
+          <p key={field.label} className="mb-2 text-sm last:mb-0">
+            <span className="font-medium">{field.label}: </span>
             {field.value}
           </p>
         ))}
@@ -95,11 +113,11 @@ function renderByTemplate(
   const title = fields[0]?.value || def.name;
   const body = fields[1]?.value || def.description;
   return (
-    <article className="rounded-2xl border border-black/10 bg-white p-5">
-      <h3 className="text-lg font-medium text-zinc-900">{title}</h3>
-      <p className="mt-2 text-sm text-zinc-600">{body}</p>
+    <article className="border border-black/10" style={tokenCardStyle}>
+      <h3 className="text-lg font-medium">{title}</h3>
+      <p className="mt-2 text-sm opacity-80">{body}</p>
       {fields.slice(2).map((field) => (
-        <p key={field.label} className="mt-2 text-xs text-zinc-500">
+        <p key={field.label} className="mt-2 text-xs opacity-70">
           {field.label}: {field.value}
         </p>
       ))}
@@ -147,8 +165,8 @@ export function buildPuckConfig(
       label: `Block · ${block.name}`,
       fields: {},
       render: () => (
-        <section className="rounded-2xl border border-dashed border-black/20 bg-zinc-50 p-4">
-          <p className="mb-3 text-xs font-medium uppercase tracking-wide text-zinc-500">
+        <section className="border border-dashed border-black/20" style={tokenCardStyle}>
+          <p className="mb-3 text-xs font-medium uppercase tracking-wide opacity-70">
             {block.name}
           </p>
           <Render

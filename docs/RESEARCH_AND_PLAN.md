@@ -105,7 +105,8 @@ open-next.config.ts
 当前状态：
 
 - 已有 Puck 编辑器、基础组件体系、组件上传、组件块复用、发布流程；
-- 尚未实现完整样式系统、断点编辑器、动画时间线。
+- 已实现 Navigator 页面树重排、断点预览和设计 Token 面板；
+- 尚未实现完整 Class/Combo Class 系统与动画时间线。
 
 ### B. CMS
 
@@ -163,11 +164,13 @@ open-next.config.ts
 - 组件块（多个组件组合成可复用块）；
 - 发布页面（可访问的已发布 URL）。
 
-### Phase 3（下一轮）
+### Phase 3（进行中）
 
-- 页面树（Navigator）+ 图层重排；
-- 断点样式编辑（Desktop/Tablet/Mobile）；
-- 站点级样式 Token（字体、颜色、间距）。
+- [x] 页面树（Navigator）+ 图层重排；
+- [x] 断点样式编辑（Desktop/Tablet/Mobile）；
+- [x] 站点级样式 Token（字体、颜色、间距）；
+- [ ] Class/Combo Class 与全局样式类体系；
+- [ ] 交互动画时间线（hover/scroll/timeline）。
 
 ### Phase 4（后续）
 

@@ -2,6 +2,7 @@ import { Render } from "@puckeditor/core";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/layout/site-header";
 import { buildPuckConfig, normalizePuckData } from "@/components/builder/puck-runtime";
+import { designTokensToCssVars, normalizeDesignTokens } from "@/lib/design-tokens";
 import {
   getProjectById,
   listComponentBlocks,
@@ -27,9 +28,13 @@ export default async function PublishedPage({ params }: Params) {
 
   const config = buildPuckConfig(components, blocks);
   const data = normalizePuckData(project.content);
+  const styleVars = designTokensToCssVars(
+    normalizeDesignTokens(project.designTokens),
+    "desktop",
+  );
 
   return (
-    <div className="min-h-screen bg-zinc-50">
+    <div className="min-h-screen bg-zinc-50" style={styleVars}>
       <SiteHeader />
       <main className="mx-auto w-full max-w-6xl px-6 py-10">
         <div className="mb-6 rounded-xl border border-black/10 bg-white px-4 py-3">
