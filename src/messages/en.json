@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "title": "Flowforge Studio",
+    "description": "A Webflow-like visual website platform with Vercel-inspired UI and Cloudflare-native backend."
+  },
+  "nav": {
+    "product": "Product",
+    "templates": "Templates",
+    "pricing": "Pricing",
+    "docs": "Docs",
+    "builder": "Open Builder"
+  },
+  "home": {
+    "hero": {
+      "badge": "Visual website system for modern teams",
+      "title": "Build pages like blocks, ship like functions",
+      "subtitle": "Flowforge combines Webflow-style visual authoring with Vercel-like product aesthetics, powered by the Cloudflare stack.",
+      "primaryCta": "Start Building",
+      "secondaryCta": "See Architecture"
+    },
+    "features": {
+      "title": "Core Capabilities",
+      "description": "Componentization, i18n, visual editing, and Cloudflare-native backend in one flow.",
+      "items": {
+        "f1Title": "Component-first pages",
+        "f1Body": "Every section is reusable to keep speed and consistency at scale.",
+        "f2Title": "Bilingual routing",
+        "f2Body": "Chinese/English routing and messages are managed through next-intl.",
+        "f3Title": "Puck visual editor",
+        "f3Body": "Drag-and-drop editing with field schemas and publish callbacks.",
+        "f4Title": "Cloudflare backend suite",
+        "f4Body": "D1, KV, R2, Queue, and Durable Object extension points are included."
+      }
+    },
+    "workflow": {
+      "title": "Editing-to-publish workflow",
+      "step1": "Compose content blocks in Builder",
+      "step2": "Store project data in D1 and metadata in KV",
+      "step3": "Push publish event to Queue for async jobs"
+    },
+    "pricing": {
+      "title": "Simple plans",
+      "starter": "Starter",
+      "pro": "Pro",
+      "enterprise": "Enterprise",
+      "starterDesc": "Best for solo prototypes.",
+      "proDesc": "Built for growing product teams.",
+      "enterpriseDesc": "For multi-site enterprise workflows."
+    },
+    "cta": {
+      "title": "Ready to build your next website platform?",
+      "description": "From multilingual marketing pages to visual editing in one codebase.",
+      "button": "Try Builder Now"
+    }
+  },
+  "builder": {
+    "title": "Visual Page Builder",
+    "description": "Drag blocks and click Publish to persist data into Cloudflare backend.",
+    "saveSuccess": "Saved successfully. Draft updated.",
+    "saveFailed": "Save failed. Please verify backend bindings."
+  }
+}

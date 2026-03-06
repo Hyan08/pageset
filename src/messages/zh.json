@@ -1,0 +1,62 @@
+{
+  "meta": {
+    "title": "Flowforge Studio",
+    "description": "类 Webflow 的可视化建站平台，采用 Vercel 风格设计与 Cloudflare 后端架构。"
+  },
+  "nav": {
+    "product": "产品",
+    "templates": "模板",
+    "pricing": "价格",
+    "docs": "文档",
+    "builder": "进入编辑器"
+  },
+  "home": {
+    "hero": {
+      "badge": "面向现代团队的可视化网站系统",
+      "title": "像搭积木一样构建网站，发布速度像部署函数一样快",
+      "subtitle": "Flowforge 把 Webflow 的可视化搭建体验与 Vercel 的简洁设计融合在一起，并原生连接 Cloudflare 全家桶。",
+      "primaryCta": "开始构建",
+      "secondaryCta": "查看架构"
+    },
+    "features": {
+      "title": "核心能力",
+      "description": "组件化、国际化、可视化编辑和 Cloudflare 原生后端，形成完整闭环。",
+      "items": {
+        "f1Title": "组件化页面系统",
+        "f1Body": "每个区块都是可复用组件，支持快速组合和风格统一。",
+        "f2Title": "双语路由与文案",
+        "f2Body": "基于 next-intl 的中文/英文路由、文案、导航统一管理。",
+        "f3Title": "Puck 可视化编辑",
+        "f3Body": "拖拽式页面编辑器，支持字段配置、组件约束和发布回调。",
+        "f4Title": "Cloudflare 后端栈",
+        "f4Body": "D1、KV、R2、Queue、Durable Objects 接口位已完成接入方案。"
+      }
+    },
+    "workflow": {
+      "title": "编辑到发布的工作流",
+      "step1": "在 Builder 中拖拽组件并调整字段",
+      "step2": "保存到 D1，摘要写入 KV 缓存",
+      "step3": "发布时写入 Queue 触发异步任务"
+    },
+    "pricing": {
+      "title": "简单的计划",
+      "starter": "个人版",
+      "pro": "团队版",
+      "enterprise": "企业版",
+      "starterDesc": "适合个人项目原型验证。",
+      "proDesc": "适合增长阶段团队协作。",
+      "enterpriseDesc": "适合大规模多站点管理。"
+    },
+    "cta": {
+      "title": "准备好构建你的下一代网站系统了吗？",
+      "description": "从多语言营销站到可视化编辑平台，在一个代码库内完成。",
+      "button": "立即体验 Builder"
+    }
+  },
+  "builder": {
+    "title": "可视化页面构建器",
+    "description": "拖拽组件并点击 Publish 保存到 Cloudflare 后端。",
+    "saveSuccess": "保存成功，已写入项目草稿。",
+    "saveFailed": "保存失败，请检查后端配置。"
+  }
+}
