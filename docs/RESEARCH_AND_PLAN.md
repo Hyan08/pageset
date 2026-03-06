@@ -89,3 +89,88 @@ open-next.config.ts
 3. `/[locale]/builder` 可打开 Puck 编辑器并触发保存；
 4. API 能在无 Cloudflare 绑定时正常返回（fallback），在有绑定时优先用 Cloudflare；
 5. 文档中有完整实施日志。
+
+## 8. Webflow 需求全景拆解（面向“接近 1:1”）
+
+> 说明：Webflow 是多产品矩阵平台，单次迭代无法完全达到 1:1。这里给出“功能域-能力点-当前状态-下一阶段”矩阵，用于持续自动推进。
+
+### A. 设计器 / Visual Builder
+
+- 页面树（Navigator）、层级拖拽、样式面板（Typography/Layout/Spacing/Effects）
+- Breakpoint 级联样式（Desktop/Tablet/Mobile）
+- Class/Combo Class 体系与样式复用
+- 交互与动画（scroll, hover, timeline）
+- 资产库（图片、视频、图标、Lottie）
+
+当前状态：
+
+- 已有 Puck 编辑器、基础组件体系、组件上传、组件块复用、发布流程；
+- 尚未实现完整样式系统、断点编辑器、动画时间线。
+
+### B. CMS
+
+- Collection 建模（字段类型、引用、多语言）
+- 条目编辑/草稿/发布
+- 模板页与动态路由绑定
+- CMS API 与 webhook
+
+当前状态：
+
+- 已有项目内容保存与发布；
+- 尚未实现 Collection 建模和动态模板页引擎。
+
+### C. Hosting / Publishing
+
+- 预览环境（staging domain）
+- 增量发布、回滚、发布历史
+- CDN 缓存刷新策略
+- SEO（sitemap、meta、结构化数据）
+
+当前状态：
+
+- 已有发布 API、发布页面 URL、Queue 事件；
+- 尚未实现版本回滚、发布历史 UI、完整 SEO 面板。
+
+### D. Team / Collaboration
+
+- 成员与角色权限（Owner/Editor/Designer）
+- 协同编辑（presence、冲突处理）
+- 评论/批注流
+
+当前状态：
+
+- 已预留 Durable Objects 接口；
+- 尚未实现完整实时协同和权限模型。
+
+### E. Commerce / Membership（后续）
+
+- 商品、订单、支付、税费
+- 会员内容、登录与权限
+
+当前状态：
+
+- 未进入本阶段。
+
+## 9. 自动推进路线（分阶段）
+
+### Phase 1（已完成）
+
+- 多语言 + 组件化首页 + Puck + Cloudflare 基础后端。
+
+### Phase 2（本次迭代）
+
+- 组件管理（上传后可在编辑器中使用）；
+- 组件块（多个组件组合成可复用块）；
+- 发布页面（可访问的已发布 URL）。
+
+### Phase 3（下一轮）
+
+- 页面树（Navigator）+ 图层重排；
+- 断点样式编辑（Desktop/Tablet/Mobile）；
+- 站点级样式 Token（字体、颜色、间距）。
+
+### Phase 4（后续）
+
+- CMS Collection 与动态模板页；
+- 发布历史、回滚、审核流；
+- 团队权限与协同编辑（DO + presence）。

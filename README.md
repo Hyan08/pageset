@@ -8,6 +8,9 @@ Webflow-like 可视化建站系统（Vercel 风格）+ Cloudflare 后端（D1/KV
 - 多语言（`/zh`、`/en`）基于 `next-intl`
 - 组件化营销页（Vercel 风格）
 - Puck 可视化编辑器（`/[locale]/builder`）
+- 组件管理：上传自定义组件并进入编辑器物料库
+- 组件块：将多个组件保存为可复用 Block
+- 发布页面：`/[locale]/published/[projectId]`
 - API + Cloudflare 绑定抽象（含本地 fallback）
 - OpenNext Cloudflare + Wrangler 配置
 

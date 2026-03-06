@@ -57,6 +57,23 @@
     "title": "Visual Page Builder",
     "description": "Drag blocks and click Publish to persist data into Cloudflare backend.",
     "saveSuccess": "Saved successfully. Draft updated.",
-    "saveFailed": "Save failed. Please verify backend bindings."
+    "saveFailed": "Save failed. Please verify backend bindings.",
+    "componentManagerTitle": "Component Manager",
+    "componentManagerDesc": "Upload component definitions and use them in editor immediately.",
+    "componentName": "Component name",
+    "componentDescription": "Component description",
+    "componentFieldsHint": "Field format: key|label|type (one per line)",
+    "createComponent": "Create component",
+    "blockManagerTitle": "Component Blocks",
+    "blockManagerDesc": "Bundle multiple components from current canvas into one reusable block.",
+    "blockName": "Block name",
+    "blockDescription": "Block description",
+    "createBlock": "Save as block",
+    "emptyComponents": "No custom component yet",
+    "emptyBlocks": "No block yet",
+    "projectName": "Project name",
+    "publishedLinkLabel": "Published page:",
+    "loading": "Loading editor resources...",
+    "saving": "Saving..."
   }
 }

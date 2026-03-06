@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { publishProject } from "@/lib/studio-store";
+import { getProjectById } from "@/lib/studio-store";
 
 export const runtime = "edge";
 
@@ -7,13 +7,13 @@ type Params = {
   params: Promise<{ id: string }>;
 };
 
-export async function POST(_: Request, { params }: Params) {
+export async function GET(_: Request, { params }: Params) {
   const { id } = await params;
-  const result = await publishProject(id);
+  const project = await getProjectById(id);
 
-  if (!result) {
+  if (!project) {
     return NextResponse.json({ error: "project_not_found" }, { status: 404 });
   }
 
-  return NextResponse.json(result);
+  return NextResponse.json({ project });
 }

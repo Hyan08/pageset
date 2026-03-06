@@ -57,6 +57,23 @@
     "title": "可视化页面构建器",
     "description": "拖拽组件并点击 Publish 保存到 Cloudflare 后端。",
     "saveSuccess": "保存成功，已写入项目草稿。",
-    "saveFailed": "保存失败，请检查后端配置。"
+    "saveFailed": "保存失败，请检查后端配置。",
+    "componentManagerTitle": "组件管理",
+    "componentManagerDesc": "上传组件定义后，可直接在编辑器中复用。",
+    "componentName": "组件名称",
+    "componentDescription": "组件描述",
+    "componentFieldsHint": "字段格式：key|label|type（每行一个）",
+    "createComponent": "创建组件",
+    "blockManagerTitle": "组件块",
+    "blockManagerDesc": "把当前页面多个组件保存成一个可复用块。",
+    "blockName": "组件块名称",
+    "blockDescription": "组件块描述",
+    "createBlock": "保存为组件块",
+    "emptyComponents": "还没有自定义组件",
+    "emptyBlocks": "还没有组件块",
+    "projectName": "项目名称",
+    "publishedLinkLabel": "已发布页面：",
+    "loading": "正在加载编辑器资源...",
+    "saving": "保存中..."
   }
 }

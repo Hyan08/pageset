@@ -1,6 +1,6 @@
 import type { Config, Data } from "@puckeditor/core";
 
-export const puckConfig: Config = {
+export const basePuckConfig: Config = {
   components: {
     HeroBlock: {
       label: "Hero",
@@ -58,7 +58,7 @@ export const puckConfig: Config = {
   },
 };
 
-export const initialPuckData: Data = {
+export const baseInitialPuckData: Data = {
   content: [
     {
       type: "HeroBlock",
